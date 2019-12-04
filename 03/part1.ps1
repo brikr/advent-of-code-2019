@@ -4,7 +4,7 @@ $first = $true
 $visited = @{ }
 $min_distance = -1
 
-foreach ($line in Get-Content .\test-input.txt) {
+foreach ($line in Get-Content .\input.txt) {
   foreach ($instruction in $line.Split(",")) {
     $distance = [int]$instruction.SubString(1)
     switch ($instruction.SubString(0, 1)) {
