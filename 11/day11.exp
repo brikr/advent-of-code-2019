@@ -1,0 +1,110 @@
+#!/usr/bin/env expect -f
+
+log_user 0
+
+set default_color [lindex $argv 0]
+array set canvas {}
+set lat 0
+set min_lat 0
+set max_lat 0
+set long 0
+set min_long 0
+set max_long 0
+# 0: up, 1: right, 2: down, 3: left
+set direction 0
+
+# exp_internal 1
+set timeout 2
+spawn "./day9"
+
+while {true} {
+  if {[info exists canvas($lat,$long)]} {
+    send $canvas($lat,$long)
+    send "\n"
+  } else {
+    send $default_color
+    send "\n"
+  }
+  expect {
+    "*0\r\n0\r\n$" {
+      # Paint panel black, turn left
+      set canvas($lat,$long) 0
+      incr direction -1
+    }
+    "*0\r\n1\r\n$" {
+      # Paint panel black, turn right
+      set canvas($lat,$long) 0
+      incr direction
+    }
+    "*1\r\n0\r\n$" {
+      # Paint panel white, turn left
+      set canvas($lat,$long) 1
+      incr direction -1
+    }
+    "*1\r\n1\r\n$" {
+      # Paint panel white, turn right
+      set canvas($lat,$long) 1
+      incr direction
+    }
+    timeout {
+      puts "pls to halp"
+      exit 1
+    }
+    eof {
+      if {$default_color == 0} {
+        puts "Part 1:"
+        puts [array size canvas]
+        exit 0
+      } else {
+        puts "Part 2:"
+        for {set i $max_lat} {$i >= $min_lat} {incr i -1} {
+          set line ""
+          for {set j $min_long} {$j <= $max_long} {incr j} {
+            if {[info exists canvas($i,$j)]} {
+              if {$canvas($i,$j) == 0} {
+                append line " "
+              } else {
+                append line "#"
+              }
+            } else {
+              append line " "
+            }
+          }
+          puts $line
+        }
+        exit 0
+      }
+    }
+  }
+  if {$direction == 4} {
+    set direction 0
+  }
+  if {$direction == -1} {
+    set direction 3
+  }
+  if {$direction == 0} {
+    incr lat
+  }
+  if {$direction == 1} {
+    incr long
+  }
+  if {$direction == 2} {
+    incr lat -1
+  }
+  if {$direction == 3} {
+    incr long -1
+  }
+
+  if {$lat > $max_lat} {
+    set max_lat $lat
+  }
+  if {$lat < $min_lat} {
+    set min_lat $lat
+  }
+  if {$long > $max_long} {
+    set max_long $long
+  }
+  if {$long < $min_long} {
+    set min_long $long
+  }
+}
