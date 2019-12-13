@@ -114,6 +114,7 @@ long run_intcode(long *og_program, size_t program_size) {
         get_args(&comp, 1, args, 0);
 
         printf("%ld\n", args[0]);
+        fflush(stdout);
 
         comp.i_ptr += 2;
         break;
