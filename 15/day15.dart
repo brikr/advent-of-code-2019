@@ -5,6 +5,45 @@ import 'dart:io';
 main() async {
   var maze = await buildMaze();
   print(maze);
+
+  var oxygenState = findOxygen(maze);
+  print("Part 1: ${oxygenState.depth}");
+  var fillTime = getFillTime(maze, oxygenState);
+  print("Part 2: ${fillTime}");
+}
+
+TraverseState findOxygen(Maze maze) {
+  // DFS from origin looking for 'o'
+  var visited = new Map<String, bool>();
+  var initialState = new TraverseState(0, 0, visited, 0);
+  var queue = new List<TraverseState>();
+  queue.add(initialState);
+
+  while (!queue.isEmpty) {
+    var next = queue.removeAt(0);
+    // maze.printWithTraverse(next.visited);
+    if (maze.map["${next.lat},${next.long}"] == 'o') {
+      return next;
+    } else {
+      queue.addAll(next.getFutures(maze));
+    }
+  }
+
+  return null;
+}
+
+int getFillTime(Maze maze, TraverseState oxygenState) {
+  var initialState = new TraverseState(oxygenState.lat, oxygenState.long, new Map<String, bool>(), 0);
+  var queue = new List<TraverseState>();
+  queue.add(initialState);
+
+  var next = null;
+  while (!queue.isEmpty) {
+    next = queue.removeAt(0);
+    queue.addAll(next.getFutures(maze));
+  }
+
+  return next.depth;
 }
 
 Future<Maze> buildMaze() async {
@@ -173,25 +212,6 @@ getBounds(int currentLat, int minLat, int maxLat, int currentLong, int minLong,
   return [minLat, maxLat, minLong, maxLong];
 }
 
-printMaze(Maze maze, int currentLat, int currentLong) {
-  for (int lat = maze.maxLat; lat >= maze.minLat; lat--) {
-    for (int long = maze.minLong; long <= maze.maxLong; long++) {
-      if (lat == currentLat && long == currentLong) {
-        if (maze.map['$lat,$long'] == 'o') {
-          stdout.write('O');
-        } else {
-          stdout.write('D');
-        }
-      } else if (maze.map['$lat,$long'] != null) {
-        stdout.write(maze.map['$lat,$long']);
-      } else {
-        stdout.write(' ');
-      }
-    }
-    print('');
-  }
-}
-
 clockwise(int dir) {
   switch (dir) {
     case 1:
@@ -268,7 +288,9 @@ class Maze {
     var buffer = new StringBuffer();
     for (int lat = this.maxLat; lat >= this.minLat; lat--) {
       for (int long = this.minLong; long <= this.maxLong; long++) {
-        if (this.map['$lat,$long'] != null) {
+        if (lat == 0 && long == 0) {
+          buffer.write('D');
+        } else if (this.map['$lat,$long'] != null) {
           buffer.write(this.map['$lat,$long']);
         } else {
           buffer.write(' ');
@@ -277,5 +299,58 @@ class Maze {
       buffer.write('\n');
     }
     return buffer.toString();
+  }
+
+  printWithTraverse(Map<String, bool> visited) {
+    print('\x1B[2J\x1B[0;0H');
+    for (int lat = this.maxLat; lat >= this.minLat; lat--) {
+      for (int long = this.minLong; long <= this.maxLong; long++) {
+        if (this.map['$lat,$long'] != null) {
+          if (visited['$lat,$long'] != null) {
+            stdout.write('X');
+          } else {
+            stdout.write(this.map['$lat,$long']);
+          }
+        } else {
+          stdout.write(' ');
+        }
+      }
+      stdout.write('\n');
+    }
+  }
+}
+
+class TraverseState {
+  int lat, long, depth;
+  Map<String, bool> visited;
+
+  TraverseState(int lat, int long, Map<String, bool> visited, int depth) {
+    this.lat = lat;
+    this.long = long;
+    this.depth = depth;
+    // this.visited = Map.from(visited);
+    this.visited = visited;
+    this.visited["$lat,$long"] = true;
+  }
+
+  List<TraverseState> getFutures(Maze maze) {
+    var futures = new List<TraverseState>();
+    // Up
+    if (visited["${this.lat+1},${this.long}"] == null && maze.map["${this.lat+1},${this.long}"] != '#') {
+      futures.add(new TraverseState(this.lat + 1, this.long, this.visited, this.depth + 1));
+    }
+    // Down
+    if (visited["${this.lat-1},${this.long}"] == null && maze.map["${this.lat-1},${this.long}"] != '#') {
+      futures.add(new TraverseState(this.lat - 1, this.long, this.visited, this.depth + 1));
+    }
+    // Left
+    if (visited["${this.lat},${this.long-1}"] == null && maze.map["${this.lat},${this.long-1}"] != '#') {
+      futures.add(new TraverseState(this.lat, this.long - 1, this.visited, this.depth + 1));
+    }
+    // Right
+    if (visited["${this.lat},${this.long+1}"] == null && maze.map["${this.lat},${this.long+1}"] != '#') {
+      futures.add(new TraverseState(this.lat, this.long + 1, this.visited, this.depth + 1));
+    }
+    return futures;
   }
 }
