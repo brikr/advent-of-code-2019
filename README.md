@@ -16,3 +16,7 @@ My goal is to use a different language for each solution. So far I've used the f
 - [Day 12](12/): Perl
 - [Day 13](13/): Awk
 - [Day 14](14/): Kotlin
+- [Day 15](15/): Dart
+- [Day 16](16/): AutoIt
+- [Day 17](17/): None
+- [Day 19](19/): Go
