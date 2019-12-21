@@ -20,3 +20,4 @@ My goal is to use a different language for each solution. So far I've used the f
 - [Day 16](16/): AutoIt
 - [Day 17](17/): None
 - [Day 19](19/): Go
+- [Day 21](21/): Python

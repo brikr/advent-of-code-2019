@@ -1,0 +1,12 @@
+NOT A J # J is true if A is hole
+NOT B T # T is true if B is hole
+OR T J  # J is true if A or B is hole
+NOT C T # T is true if C is hole
+OR T J  # J is true if A, B, or C is hole
+AND D J # J is true if A, B, or C is hole AND D is ground
+NOT E T
+AND E T
+OR E T  # T = E
+OR H T  # T is true if E or H is ground
+AND T J # J is true if ((A, B, or C is hole) AND D is ground) AND !(H and E are hole)
+RUN
