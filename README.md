@@ -21,3 +21,4 @@ My goal is to use a different language for each solution. So far I've used the f
 - [Day 17](17/): None
 - [Day 19](19/): Go
 - [Day 21](21/): Python
+- [Day 22](22/): Ruby
